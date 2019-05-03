@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>英文、中英文地图</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" /> -->
+    <style>
+        html,
+        body,
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+
+        #map-styles .input-item {
+            height: 2rem;
+        }
+
+        #map-styles .input-item span {
+            display: inline-block;
+            width: 4rem;
+        }
+
+        #map-styles .input-item .input-text {
+            color: #0288d1;
+            margin-left: 1rem;
+            margin-right: 0rem;
+            width: 6rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+        <button id="showMap" class="btn btn-primary" onclick="showMap()">showMap</button>
+    </div>
+    <script src="http://api.map.baidu.com/api?v=2.0&ak=qRSHPoY8yXPnkqCprnjDGCFiijMSSgft"></script>
+    <script>
+        function showMap() {
+            var map = new BMap.Map("container");
+            // var point = new BMap.Point(116.404, 39.915);
+            // map.centerAndZoom(point, 15);
+            var geolocation = new BMap.Geolocation();
+            geolocation.getCurrentPosition(function (r) {
+                if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+                    var mk = new BMap.Marker(r.point);
+                    map.addOverlay(mk);
+                    map.panTo(r.point);
+                    map.panTo(new BMap.Point(r.point.lng, r.point.lat));
+                    map.centerAndZoom(r.point, 15);
+                } else {
+                    alert('failed' + this.getStatus());
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>

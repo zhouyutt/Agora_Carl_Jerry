@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Agora Web Sample</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
+<style type="text/css">
+ 
+</style>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<!-- <script src="/AgoraRTC-production-2.6dev-maoge.js"></script> -->
+<script src="https://cdn.agora.io/sdk/web/AgoraRTCSDK-2.6.1.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+<div id="div_device" class="panel panel-default" style="text-align: center;">
+
+  <div class="select" >
+  <label for="audioSource">Audio source: </label><select id="audioSource"></select>
+  </div>
+  <div class="select" >
+  <label for="videoSource">Video source: </label><select id="videoSource"></select>
+  </div>
+</div>
+
+<div id="div_join" class="panel panel-default" >
+<div class="panel-body" style=" text-align: center;">
+<button id="getAppid" class="btn btn-primary" onclick="getAppid()">AGORAN GET APPID</button>
+APPID: <input id="key" type="text" value="" size="36"></input>
+
+<select id = "token" onchange="select()">
+  <option value ="">NO Encryption（不加密）</option>
+  <option value ="Token">Token</option>
+  <option value ="channelKey">channelKey</option>
+</select>
+<a id="channelKey1"  style="display: none" >App Certificate:</a>
+<input id="channelKey" type="text" value="945ccefdd55d4c25b64146927870f81b" style="display: none" size="40"></input>
+Channel: <input id="channel" type="text" value="123" size="6"></input>
+<select id = "videoprofile">
+  <option value ="180P_4">180P4</option>
+  <option value ="240P">240P</option>
+  <option value ="360P">360P</option>
+  <option value ="360p_3">360P3</option>
+  <option value="480P">480P</option>
+  <option value="720P" selected>720P</option>
+  <option value="720p_5">720P_5</option>
+  <option value="1080p_2" >1080P</option>
+</select>
+<button id="compute" class="btn btn-primary" onclick="compute()">算token</button>
+</div><div class="panel-body" style="text-align: center;margin-top: 5px">
+<select id = "mode">
+  <option value ="live" selected>live</option>
+  <option value ="rtc">rtc</option>
+</select>
+<select id = "codec">
+  <option value ="vp8" selected>VP8</option>
+  <option value ="h264">H264</option>
+</select>
+Host: <input id="video" type="checkbox" checked="checked"></input>
+<button id="join" class="btn btn-primary" onclick="join1()">Join</button>
+<button id="switchDevice" class="btn btn-primary" onclick="switchDevice()">switchDevice</button> 
+<button id="leave" class="btn btn-primary" onclick="leave()">Leave</button>
+<button id="publish" class="btn btn-primary" onclick="publish()">Publish</button>
+<button id="unpublish" class="btn btn-primary" onclick="unpublish()">Unpublish</button>
+<button id="unsubscribe" class="btn btn-primary" onclick="unsubscribe()">Unsubscribe</button>
+<button id="disableVideo" class="btn btn-primary" onclick="disableVideo()">disableVideo</button>
+<button id="enableVideo" class="btn btn-primary" onclick="enableVideo()">enableVideo</button>
+<button id="disableVideo" class="btn btn-primary" onclick="disableAudio()">disableAudio</button>
+<button id="enableVideo" class="btn btn-primary" onclick="enableAudio()">enableAudio</button>
+<button id="test" class="btn btn-primary" onclick="test()">test</button>
+<button id="test1" class="btn btn-primary" onclick="test1()">test1</button>
+<!-- <button id="test2" class="btn btn-primary" onclick="test2()">test2</button> -->
+</div>
+
+<div class="panel-body" style="text-align: center;margin-top: 5px">
+<button id="startAudioMixing" class="btn btn-primary" onclick="startAudioMixing()">startAudioMixing</button>
+<button id="startAudioMixing1" class="btn btn-primary" onclick="startAudioMixing1()">startAudioMixing1</button>
+<button id="pauseAudioMixing" class="btn btn-primary" onclick="pauseAudioMixing()">pauseAudioMixing</button>
+<button id="resumeAudioMixing" class="btn btn-primary" onclick="resumeAudioMixing()">resumeAudioMixing</button>
+<button id="stopAudioMixing" class="btn btn-primary" onclick="stopAudioMixing()">stopAudioMixing</button>
+<button id="getAudioMixingDuration" class="btn btn-primary" onclick="getAudioMixingDuration()">Duration</button>
+<button id="getAudioMixingCurrentPosition" class="btn btn-primary" onclick="getAudioMixingCurrentPosition()">Position</button>
+<button id="setAudioMixingPosition" class="btn btn-primary" onclick="setAudioMixingPosition()">setAudioMixingPosition</button>
+</div>
+
+<div class="panel-body" style="text-align: center;margin-top: 5px">
+<button id="removeAudioTrack" class="btn btn-primary" onclick="removeAudioTrack()">removeAudioTrack</button>
+<button id="removeVideoTrack" class="btn btn-primary" onclick="removeVideoTrack()">removeVideoTrack</button>
+<button id="addAudioTrack" class="btn btn-primary" onclick="addAudioTrack()">addAudioTrack</button>
+<button id="addVideoTrack" class="btn btn-primary" onclick="addVideoTrack()">addVideoTrack</button>
+<button id="replaceVideoTrack" class="btn btn-primary" onclick="replaceVideoTrack()">replaceVideoTrack</button>
+<button id="replaceAudioTrack" class="btn btn-primary" onclick="replaceAudioTrack()">replaceAudioTrack</button>
+<button id="captureAndReplace" class="btn btn-primary" onclick="captureAndReplace()">captureAndReplace</button>
+
+</div>
+</div>
+<!-- <div class="box">
+        <video src="./movie.mp4"></video>
+        
+</div> -->
+
+    <!--style>
+    .video__box{width:910px; margin:0 auto; overflow:hidden;}
+    .video__main{ width:810px; height:607px;float:left }
+    .video__list{ width:200px; height:607px; float:left;}
+    .video__item{ width:200px; height:174px; hei background:url(/img/icon_live.png) center center no-repeat; }
+    </style>
+    <div class="video__main">
+    </div>
+    <div class="video__list">
+        <div class="video__item"></div>
+        <div id="video" class="video__item">
+            <div id="agora_local"></div>
+        </div>
+    </div-->
+
+<div id="videoshow" style="margin:0 auto;">
+	<div id="videotext" >
+		<p style="float:left;margin-left:50px;" >local video:</p>
+		<p style="text-align:right;margin-right:50px;">remote video:</p> 
+	</div>
+	
+<!-- <video id="myVideo" width="320" height="240" style="float:left;" controls>
+  <source src="/movie.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video> -->
+<div id="agora_local" style="float:left;display:inline-block;">
+<!--   <audio src="test.mp3" controls></audio> -->
+</div>
+
+</div>
+<div id="agora_local1" style="float:left;width:540px;height:405px;display:inline-block;">
+
+  <img src="error.png" id="cover" style="display: none;">
+<canvas id="dummyStreamCanvas" width="640" height="480" style="display: none;"></canvas>
+</div>
+</div>
+<!-- <div id="agora_local2" style="float:left;width:400px;height:205px;display:inline-block;"></div>
+</div>
+<div id="agora_local3" style="float:left;width:300px;height:205px;display:inline-block;"></div>
+</div>
+<div id="agora_local4" style="float:left;width:200px;height:105px;display:inline-block;"></div>
+</div> -->
+<script language="javascript">
+
+function getAppid(){
+   var agora1=prompt("声网的英文名是？(大小写都可以)");
+  if (agora1=="agora" || agora1=="AGORA"){
+      document.getElementById('key').value="3a2e1fc46fbf4a0f84edba957e398989";
+    }else{
+      alert("输入错误，请百度");
+    }
+}
+
+function select(){
+  var select = document.getElementById('token');
+  var index=select.selectedIndex;
+  var v= select.options[index].value;
+  if (v=="Token"||v=="channelKey"){
+    document.getElementById('channelKey1').style.display="inline";
+    document.getElementById('channelKey').style.display="inline";
+  }else{
+    document.getElementById('channelKey1').style.display="none";
+    document.getElementById('channelKey').style.display="none";
+  }
+} 
+
+
+
+if(!AgoraRTC.checkSystemRequirements()) {
+  alert("browser is no support webRTC");
+}
+
+/* select Log type */
+// AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.NONE);
+
+ //AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.ERROR);
+// AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.WARNING);
+ //AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.INFO);  
+AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.DEBUG);
+AgoraRTC.Logger.enableLogUpload();
+
+/* simulated data to proof setLogLevel() */
+// AgoraRTC.Logger.error('this is error');
+// AgoraRTC.Logger.warning('this is warning');
+// AgoraRTC.Logger.info('this is info');
+// AgoraRTC.Logger.debug('this is debug');
+
+var client, localStream, camera, microphone;
+var xxx =new Array();
+//var uid=Math.floor(Math.random()* 0xFFFFFFFF);
+var audioSelect = document.querySelector('select#audioSource');
+var videoSelect = document.querySelector('select#videoSource');
+
+function join1(){
+
+  if (token.value=="Token"){
+    var appCer = channelKey.value;
+    if (appCer!="") {
+      var st="qwe";
+     $.ajax({
+            url: "http://recording.agorapremium.agora.io:9001/agora/media/genAccessToken?uid=0&channelname="+channel.value+"&expiredts=0&key="+key.value+"&sign="+channelKey.value+"&audio=1&video=1&data=1"
+            // url: "http://recording.agorapremium.agora.io:9001/agora/media/genDynamicKey5?channelname="+channel.value+"&key="+key.value+"&sign="+channelKey.value
+          }).done(function (key) {
+          if (key != "") {
+              //alert(key);
+              console.log("Token: "+key);
+              join(key);
+            }else{
+              console.log("Token: "+key);
+            }
+          });
+
+    }else{
+      alert("请输入 AppCertificate!");
+    }
+  }else if (token.value=="channelKey") {
+
+
+    // {url: "http://recording.agorapremium.agora.io:9001/agora/media/genDynamicKey5?channelname="+channel.value+"&key="+key.value+"&sign="+channelKey.value+"&expiredts=0&uid=0"}
+
+    // if (appCer!="") {
+    //  $.ajax(settings).done(function (key) {
+    //       if (key != "") {
+    //           //alert(key);
+    //           console.log("channelKey: "+key);
+    //           join(key);
+    //         }
+    //       });
+
+    // }else{
+    //   alert("请输入 AppCertificate!");
+    // }
+    var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "https://cartons.top:2443/get_dk5",
+    "method": "POST",
+    "contentType": "application/json",
+    "processData": false,
+    "data": JSON.stringify({
+      "appId":key.value, 
+     "appCert":channelKey.value, 
+     "channelName":channel.value,
+     "uid":0, 
+     "expiredTs":0,
+     "privilege":"1"
+    })
+  }
+  $.ajax(settings).done(function (response) {
+    console.log(response.token);
+    join(response.token);
+     
+  });
+
+  }else{
+    join(null);
+  }
+}
+
+function join(channel_key) {
+  //document.getElementById("join").disabled = true;
+  document.getElementById("leave").disabled = false;
+  //var channel_key = null ;
+  console.log("Init AgoraRTC client with vendor key: " + key.value);
+  client = AgoraRTC.createClient({mode: mode.value,codec:codec.value});
+  
+  //客户端初始化
+  client.init(key.value, function () {
+    console.log("AgoraRTC client initialized");
+
+    // client.setClientRole("host", function() {
+    //           console.log("host success");
+    //         }, function(e) {
+    //           console.log("setHost failed", e);
+    //         })
+    //加入AgoraRTC频道
+//var channel_key="";
+    client.join(channel_key,channel.value,null, function(uid) {//
+      console.log("User " + uid + " join channel successfully");
+        camera = videoSource.value;
+        microphone = audioSource.value;  
+
+         //创建音视频流对象
+        localStream = AgoraRTC.createStream({streamID: uid, audio: true, video:true, cameraId: camera, microphoneId: microphone,screen: false,mirror: false});
+        //chrome 屏幕共享
+        // localStream = AgoraRTC.createStream({streamID: uid, audio: true, cameraId: camera, microphoneId: microphone, video: false, screen: true, extensionId:'minllpmhdgpndnkomcoccfekfegnlikg' });
+        //firefox 屏幕共享
+        // localStream = AgoraRTC.createStream({streamID: uid, audio: false, video: false, screen: true,mediaSource: 'window'});
+        //私有接口设置宽高、分辨率、帧率
+        // localStream.setVideoProfileCustomPlus({
+        //     width: 640,
+        //     height: 480,
+        //     bitrate: 500000,
+        //     framerate: 5
+        // }); 
+          
+        //localStream.screenAttributes.maxFr = 30;//屏幕共享私有接口-帧率
+        //localStream.screenAttributes.minFr = 30;
+        // localStream.screenAttributes.minVideoBW = 50; //屏幕共享私有接口-码率
+        // localStream.screenAttributes.maxVideoBW = 100;  
+         localStream.setVideoProfile(videoprofile.value);  
+       // localStream.setVideoBitRate([30,300]);//码率私有接口
+          
+
+        // The user has granted access to the camera and mic.
+        localStream.on("accessAllowed", function() {
+          console.log("accessAllowed");
+        });
+
+        // The user has denied access to the camera and mic.
+        localStream.on("accessDenied", function() {
+          console.log("accessDenied");
+        });
+
+        localStream.on("stopScreenSharing",function(){
+          alert("手动停止屏幕共享！！！");
+        })
+        localStream.on('audioMixingPlayed',function(evt){
+          console.log(evt.type);
+        });
+        //初始化音视频对象 
+        localStream.init(function() {
+          console.log("init successfully");
+          var n=localStream.stream.getVideoTracks()[0].getSettings().width;
+          var m=localStream.stream.getVideoTracks()[0].getSettings().height;
+          if(parseInt(n)/parseInt(m)==16/9){
+              document.getElementById("agora_local").style.width=640+"px";
+              document.getElementById("agora_local").style.height=360+"px";
+          }else if(parseInt(n)/parseInt(m)==4/3){
+              document.getElementById("agora_local").style.width=480+"px";
+              document.getElementById("agora_local").style.height=360+"px";
+          }else if(parseInt(n)/parseInt(m)==3/2){
+              document.getElementById("agora_local").style.width=540+"px";
+              document.getElementById("agora_local").style.height=360+"px";
+          }else {
+              document.getElementById("agora_local").style.width=480+"px";
+              document.getElementById("agora_local").style.height=360+"px";
+          }
+         
+         localStream.play('agora_local',"contain");
+          if (document.getElementById("video").checked) {
+            publish();
+          }
+          // setTimeout(function(){
+          //     console.log(AgoraRTC.NetworkQualityStats());
+          // },2000);
+
+          
+        }, function (err) {
+          console.log("getUserMedia failed", err.msg);
+        });
+     
+
+    }, function(err) {
+      console.log("Join channel failed111", err);
+    });
+  }, function (err) {
+    console.log("AgoraRTC client init failed", err);
+  });
+
+  client.on('error', function(err) {
+    console.log("Got error msg:", err.reason);
+    if (err.reason === 'ERR_DYNAMIC_KEY_EXPIRED'||err.reason==='ERR_DYNAMIC_KEY_TIMEOUT') {
+      //更新Channel Key
+    }else if (err.reason=== 'SOCKET_DISCONNECTED') {
+      
+       // client.leave(function () {
+       //    console.log("Leavel channel successfully");
+       //  }, function (err) {
+       //    console.log("Leave channel failed");
+       //  });
+       setTimeout(function(){
+            if(client.getConnectionState()=="CONNECTED"){
+                       console.log(client.getConnectionState());  
+                  }else{
+                    client.leave(function () {
+                        console.log("Leavel channel successfully");
+                      }, function (err) {
+                        console.log("Leave channel failed");
+                      });
+                  }
+          
+           
+       },20000);
+    }
+    
+
+  });
+  client.on("connection-state-change", function(evt) {
+    console.log(evt.prevState, evt.curState);
+  })
+
+  client.on('rejoin', function(evt) {
+    console.log("Got rejoin msg:", evt);
+ 
+    
+  });
+
+  client.on('onTokenPrivilegeWillExpire', function() {
+       
+  });
+
+  //回调事件-本地音视频已发布
+  client.on('stream-published', function (evt) {
+    console.log("Publish local stream successfully");
+    // Get = setInterval(function() { 
+    //   client.getLocalVideoStats(function(evt){
+    //       console.log(evt);
+    //   })
+    // }, 3000)  
+     
+    //var lastBytes = 0; 
+    // Get = setInterval(function() {
+    //         localStream.getStats(function(stats){
+    //         // var bytesRecvThisSecond = stats.videoSendBytes - lastBytes;
+    //         // lastBytes = stats.videoSendBytes;
+    //         // console.log("xxxxx", bytesRecvThisSecond * 8 / 1024 +"kbps");
+    //         var  lost =  stats.videoSendPacketsLost/(stats.videoSendPackets-stats.videoSendPacketsLost)
+    //         //console.log(lost);
+    //         // if(i<10){
+    //         //   console.log(stats.videoSendBytes);
+    //         // }else{
+    //         //   console.log(stats.videoSendBytes/10+"kbps");
+    //         //   clearInterval(Get);
+    //         //}
+    //       });
+    //       }, 1000)  
+  });
+
+  //提示人说话事件
+  client.on('active-speaker', function(evt) {
+     var uid = evt.uid;
+     console.log("update active speaker: client " + uid);
+  });
+//   client.enableAudioVolumeIndicator();
+
+//   client.on("volume-indicator", function(evt){
+//     evt.attr.forEach(function(volume, index){
+//             console.log(volume);
+//     });
+// });
+  var  i=0;
+
+  //回调事件-远程音视频流已添加
+  client.on('stream-added', function (evt) {
+    
+     var stream = evt.stream;
+     xxx.push(evt.stream);
+     //client.setRemoteVideoStreamType(xxx[i],0);
+     client.subscribe(stream,function (err) {
+       console.log("Subscribe stream failed", err);
+     });
+     console.log("New stream added: " + stream.getId());
+     console.log("Subscribe ", stream);
+     //client.setRemoteVideoStreamType(stream, 1);
+   //alert(i);
+   i++;
+   
+  });
+
+  //回调事件-远程音视频流已订阅
+  client.on('stream-subscribed', function (evt) {
+
+    var stream = evt.stream;
+    stt=stream;
+
+    //stream.disableVideo();
+    console.log("Subscribe remote stream successfully: " + stream.getId());
+    if ($('div#videoshow #agora_remote'+stream.getId()).length === 0) {
+      $('div#videoshow').append('<div id="agora_remote'+stream.getId()+'" style="float:right; width:600px;height:500px;display:inline-block;"></div>');
+    }
+    
+    //console.log(stream.isPlaying());
+     stt.play('agora_remote' + stream.getId());
+    // setInterval(function() {
+    //   var audioLeve = stream.getAudioLevel();
+    //   // use audioLeve to render UI
+    //   console.log(audioLeve);
+    // }, 1000)
+    //console.log(stream.hasVideo());
+    // Get = setInterval(function() { 
+    //   stream.getStats(function(evt){
+    //       console.log(evt);
+    //   })
+    //}, 3000)  
+    //console.log(stream.isPlaying());
+    // stream.player.video.addEventListener("suspend", function(){
+    //     console.log("Video suspended. AutoPlay policy enabled" );
+    // });
+    
+
+    
+  });
+  
+//   client.on('network-quality', function(stats) {
+//     console.log("downlinkNetworkQuality", stats.downlinkNetworkQuality);
+//     console.log("uplinkNetworkQuality", stats.uplinkNetworkQuality);
+// });
+  //回调事件-远程音视频流已删除
+  client.on('stream-removed', function (evt) {
+    var stream = evt.stream;
+    stream.stop();
+    //document.getElementById('video'+stream.getId()).pause();
+     $('#agora_remote' + stream.getId()).remove();
+     console.log("Remote stream is removed " + stream.getId());
+  });
+
+  //回调事件-远程用户已离开会议室
+  client.on('peer-leave', function (evt) {
+    console.log(evt.uid + " leaved from this channel");
+    //document.getElementById('video'+evt.uid).pause();
+    
+  });
+  
+  client.on('mute-audio', function(evt) {
+    var uid = evt.uid;
+    console.log("mute audio1:" + uid);
+    //stt.muteAudio();
+  //alert("mute audio:" + uid);
+  });
+  client.on('unmute-audio', function (evt) {
+  var uid = evt.uid;
+  console.log("unmute audio1:" + uid);
+  //stt.unmuteAudio();
+  });
+  client.on('mute-video', function (evt) {
+  var uid = evt.uid;
+  console.log("mute video" + uid);
+  //alert("mute video:" + uid);
+  })
+  client.on('unmute-video', function (evt) {
+  var uid = evt.uid;
+  console.log("unmute video:" + uid);
+  })
+  client.on("stream-updated", function(evt){
+    console.log("stream-updated",evt.stream.getId(),"audio:" +evt.stream.audio,"video:"+evt.stream.video);
+  })
+
+}
+
+function leave() {
+  //document.getElementById("leave").disabled = true;
+  document.getElementById("join").disabled = false;
+  localStream.stop();
+  localStream.close();
+  localStream.getId();
+   //$('#player_' + localStream.getId()).remove();
+  //   console.log("local stream is removed " + localStream.getId());
+  client.leave(function () {
+    console.log("Leavel channel successfully");
+    client = null;
+    //window.clearInterval(Get);
+  }, function (err) {
+    console.log("Leave channel failed");
+  });
+}
+
+function publish(){
+  //发布本地音视频流
+  //document.getElementById("publish").disabled = true;
+  document.getElementById("unpublish").disabled = false;
+  //   client.enableDualStream(function() {
+  //   console.log('Enable dual stream success!');
+  // }, function(err) {
+  //   console.log('Enable dual stream failed!');
+  // }) 
+    //client.setRemoteVideoStreamType(localStream, 0);
+
+  client.publish(localStream, function (err) {
+      console.log("Publish local stream error: " + err);
+
+  }); 
+  // setInterval(function() {
+  //               localStream.getStats(function(stats){
+  //               console.log(stats);
+  //             });
+  //             }, 5000)
+  //localStream.enableVideo();
+  //$('#audio' + localStream.getId()).remove();
+//   setInterval(function() {
+//   var audioLeve = localStream.getAudioLevel();
+//   // use audioLeve to render UI
+//   console.log(audioLeve);
+// }, 100)
+}
+
+
+function unpublish() {
+  document.getElementById("publish").disabled = false;
+  document.getElementById("unpublish").disabled = true;
+  client.unpublish(localStream, function (err) {
+    console.log("Unpublish local stream failed" + err);
+  });   
+  //localStream.close();
+  //localStream.stop();
+}
+function unsubscribe() {
+  //document.getElementById("publish").disabled = false;
+  //document.getElementById("unpublish").disabled = true;
+  for(var j=0;j<xxx.length;j++){
+    client.unsubscribe(xxx[j], function (err) {
+      console.log("Unpublish local stream failed" + err);
+  });   
+    xxx[j].stop();
+  }
+  
+}
+//
+
+function getStatus(){
+    var Get = setInterval(function() {
+                localStream.getStats(function(stats){
+                console.log(stats);
+              });
+              }, 5000)
+
+}
+
+function compute(){
+
+  if (token.value=="Token"){
+    var appCer = channelKey.value;
+    if (appCer!="") {
+     $.ajax({
+            url: "http://recording.agorapremium.agora.io:9001/agora/media/genAccessToken?uid=0&channelname="+channel.value+"&expiredts=0&key="+key.value+"&sign="+channelKey.value+"&audio=1&video=1&data=1"
+            // url: "http://recording.agorapremium.agora.io:9001/agora/media/genDynamicKey5?channelname="+channel.value+"&key="+key.value+"&sign="+channelKey.value
+          }).done(function (key) {
+          if (key != "") {
+              console.log("Token: "+key);
+              prompt("Token",key);
+              
+            }
+          });
+
+    }else{
+      alert("请输入 AppCertificate!");
+    }
+  }else if (token.value=="channelKey") {
+    if (appCer!="") {
+     $.ajax({
+           
+           url: "http://recording.agorapremium.agora.io:9001/agora/media/genDynamicKey5?channelname="+channel.value+"&key="+key.value+"&sign="+channelKey.value
+          }).done(function (key) {
+          if (key != "") {
+              //alert(key);
+              alert("channelKey: "+key);
+              console.log("channelKey: "+key);
+            }
+          });
+
+    }else{
+      alert("请输入 AppCertificate!");
+    }
+
+  }else{
+    alert("请选择加密方式！！！");
+  }
+  
+}
+
+function disableVideo(){
+  console.log(localStream.muteVideo());
+}
+
+function enableVideo(){
+  console.log(localStream.unmuteVideo());
+}
+
+function disableAudio(){
+  //localStream.disableAudio();
+  console.log(stt.muteAudio());
+}
+
+function enableAudio(){
+  //localStream.enableAudio();
+  console.log(stt.unmuteAudio());
+}
+
+function startAudioMixing(){
+
+    //var options = { filePath:window.music ,cycle:1,playTime:0,loop:false,replace:false };
+    //http://dl.stream.qqmusic.qq.com/C400002PttbC4ShLBP.m4a?guid=7212558047&vkey=A587E5A1909F75402026625C19FBE92C3B8DB450EF3B139DE530F1F8244F06DCC89BC2D89057DF2A46E2D3CB62BE2F4ED9E296A959686A00&uin=0&fromtag=66
+    var options = { filePath:"/test.mp3",cycle:1,playTime:0,loop:false,replace:false };
+    localStream.startAudioMixing(options,function(err){
+      if(err){
+        console.log(err);
+      }  
+    });
+
+    
+}
+
+
+function stopAudioMixing(){
+    localStream.stopAudioMixing();
+}
+
+function pauseAudioMixing(){
+    localStream.pauseAudioMixing();
+}
+
+function resumeAudioMixing(){
+    localStream.resumeAudioMixing();
+}
+
+function getAudioMixingDuration(){
+   alert("当前背景音乐的时间长度是："+localStream.getAudioMixingDuration()/1000+"s");
+}
+
+function getAudioMixingCurrentPosition(){
+    alert("此时播放的位置是："+localStream.getAudioMixingCurrentPosition()/1000+"s");
+}
+
+function setAudioMixingPosition(){
+    var time = prompt("请输入需要跳转的时间点(单位毫秒)","");
+    Number(time);
+  if (time!=null && time!=""&&time<=localStream.getAudioMixingDuration())
+    {
+      localStream.setAudioMixingPosition(time);
+    }   
+}
+
+function removeAudioTrack(){
+
+  localStream.removeTrack(localStream.getAudioTrack());
+}
+
+function removeVideoTrack(){
+  //localStream.disableVideo();
+  localStream.removeTrack(localStream.getVideoTrack());
+
+}
+
+function addAudioTrack(){
+  var localStreamA=AgoraRTC.createStream({audio: true, video: false,cameraId: camera, microphoneId:microphone});
+
+      localStreamA.init(function() {
+        console.log("local stream initialized");
+        localStream.addTrack(localStreamA.getAudioTrack());
+        
+      }, function(err) {
+        console.error("local stream init failed ", err);
+      });
+      setTimeout(function(){
+        localStream.enableVideo();
+      },1000);
+
+}
+
+function addVideoTrack(){
+    
+  // var localStreamV=AgoraRTC.createStream({audio: false, video: true,cameraId: camera, microphoneId:microphone});
+
+  //     localStreamV.init(function() {
+  //         console.log("local stream initialized");
+  //         localStream.addTrack(localStreamV.getVideoTrack());
+  //         //localStream.enableVideo();
+  //       }, function(err) {
+  //         console.error("local stream init failed ", err);
+  //       });
+  var canvasContext = $("#dummyStreamCanvas")[0].getContext('2d');
+        var imgCnt = 0;
+        setInterval(function(){
+            imgCnt++;
+            canvasContext.drawImage($("#cover")[0], (imgCnt * 50) % 600, 100);
+          }, 500);
+               
+         var canvasStream = $("#dummyStreamCanvas")[0].captureStream();
+          var videoSource1 = canvasStream.getVideoTracks()[0]; 
+          localStream.addTrack(videoSource1); 
+}
+
+function replaceVideoTrack(){
+  // var canvasContext = $("#dummyStreamCanvas")[0].getContext('2d');
+  //       var imgCnt = 0;
+  //       setInterval(function(){
+  //           imgCnt++;
+  //           canvasContext.drawImage($("#cover")[0], (imgCnt * 50) % 600, 100);
+  //         }, 500);
+               
+  //        var canvasStream = $("#dummyStreamCanvas")[0].captureStream();
+  //         var videoSource1 = canvasStream.getVideoTracks()[0]; 
+  //         localStream.replaceTrack(videoSource1); 
+      
+     
+          var localStreamV=AgoraRTC.createStream({audio: false, video: true,cameraId: camera, microphoneId:microphone });
+       
+          localStreamV.setVideoProfile("480P");
+          localStreamV.init(function() {
+          console.log("local stream initialized");
+          localStream.replaceTrack(localStreamV.getVideoTrack());       
+          
+        }, function(err) {
+          console.error("local stream init failed ", err);
+        });  
+          
+}
+
+function replaceAudioTrack(){
+  var localStreamA=AgoraRTC.createStream({audio: true, video: false,cameraId: camera, microphoneId:microphone });
+
+      localStreamA.init(function() {
+        console.log("local stream initialized");
+        localStream.replaceTrack(localStreamA.getAudioTrack());
+        
+      }, function(err) {
+        console.error("local stream init failed ", err);
+      });
+}
+
+function switchDevice(){
+  //console.log(videoSource.value+ "  "+ audioSource.value);
+  //console.log(typeof(videoSource.value));
+
+  localStream.switchDevice('video',videoSource.value,function(){
+
+      console.log('switch videoDevice success');
+      
+      localStream.switchDevice('audio',audioSource.value,function(){
+
+        console.log('switch audioDevice success');
+        console.log(localStream.cameraId+" "+localStream.microphoneId);
+
+        },function(err){
+
+          console.log(err);
+      });
+    },function(err){
+
+      console.log(err);
+
+      });
+}
+
+function captureAndReplace(){
+     var audio = document.querySelector("audio");
+     audio.play();
+     var mediaStream = audio.captureStream();
+     var videoSource = mediaStream.getVideoTracks()[0];
+     var audioSource = mediaStream.getAudioTracks()[0]; 
+     localStream.replaceTrack(audioSource);
+
+}
+
+function test(){
+  var localStreamV=AgoraRTC.createStream({audio: false, video: true,cameraId: camera, microphoneId:microphone });
+       
+          localStreamV.setVideoProfile("480P");
+          localStreamV.init(function() {
+          console.log("local stream initialized");
+          localStream.replaceTrack(localStreamV.getVideoTrack());       
+          localStream.enableVideo();
+        }, function(err) {
+          console.error("local stream init failed ", err);
+        }); 
+        
+}
+
+
+function test1(){
+
+       //var x = document.getElementById("111"); 
+      // x.srcObject =localStream.stream;
+  
+  // setInterval(function(){
+  //   imgCnt++;
+  //   canvasContext.drawImage($("#cover")[0], (imgCnt * 50) % 600, 100);
+  // }, 500);
+     //var video = document.querySelector("video");
+    // video.play();
+     //var mediaStream = video.srcObject;
+     //var videoSource = "error.png";
+     //var audioSource = mediaStream.getAudioTracks()[0];
+     //localStream.replaceTrack(videoSource);    
+    // localStream.replaceTrack(audioSource);   
+          
+}
+
+
+function test2(){
+     // var audio = document.querySelector("audio");
+     // audio.play();
+     // var mediaStream = audio.captureStream();
+     // var videoSource = mediaStream.getVideoTracks()[0];
+     // var audioSource = mediaStream.getAudioTracks()[0]; 
+    // localStream.replaceTrack(audioSource);  
+    
+}
+
+
+function getDevices() {
+  AgoraRTC.getDevices(function (devices) {
+    for (var i = 0; i !== devices.length; ++i) {
+      
+      
+      var device = devices[i];
+      //console.log(devices[i]);
+      var option = document.createElement('option');
+      option.value = device.deviceId;
+      if (device.kind === 'audioinput') {
+        option.text = device.label || 'microphone ' + (audioSelect.length + 1);
+        audioSelect.appendChild(option);
+        console.log('Some other kind of source/device: ', device);
+      } else if (device.kind === 'videoinput') {
+        option.text = device.label || 'camera ' + (videoSelect.length + 1);
+        videoSelect.appendChild(option);
+        console.log('Some other kind of source/device: ', device);
+      } else {
+         console.log('Some other kind of source/device: ', device);
+      }
+    // if(devices[i]['label'] != "ManyCam Virtual Microphone (Virtual)"&&devices[i]['label']!= "ManyCam Virtual Webcam"){
+    // }else{
+    //   console.log("虚拟设备");
+    // }
+    }
+  },function(err){
+    console.log(err);
+  });
+
+}
+
+function getwebm(){
+  var options = {mimeType: 'audio/webm;codecs=pcm'};
+      var audioStream = new MediaStream();
+      audioStream.addTrack(localStream.getAudioTrack());
+      let mediaRecorder = new MediaRecorder(audioStream, options);
+      let recordedChunks = [];
+      mediaRecorder.ondataavailable = function(event){
+          console.log("ondataavailable", event);
+          recordedChunks.push(event.data);
+          download();
+      };
+      mediaRecorder.start();
+      setInterval(()=>{
+          console.log(mediaRecorder.state);
+
+      }, 1000);
+      setTimeout(() => {
+          mediaRecorder.stop();
+      }, 10000);
+
+function download() {
+  var blob = new Blob(recordedChunks, {
+    type: 'video/webm'
+  });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  document.body.appendChild(a);
+  a.style = 'display: none';
+  a.href = url;
+  a.download = 'test.webm';
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+  
+}
+//audioSelect.onchange = getDevices;
+//videoSelect.onchange = getDevices;
+getDevices();
+
+
+</script>
+</body>
+</html>
