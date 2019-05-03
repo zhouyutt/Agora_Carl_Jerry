@@ -7,8 +7,20 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var JerryCarl = require('./routes/Jerry&Carl')
+// var AgoraRTC = require('agora-rtc-sdk');
 
 var app = express();
+
+
+// video engine setup
+// var client = AgoraRTC.createClient({mode:"live"});
+// client.init(function(){
+//   console.log("client init success");
+// },function(err){
+//   console.log("client init failed "+err);
+// });
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
